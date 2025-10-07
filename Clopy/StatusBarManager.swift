@@ -90,25 +90,59 @@ class StatusBarManager: ObservableObject {
         
         // Section B: Management
         if !clipboardManager.clips.isEmpty {
+            // Star Clip submenu (only show if there are non-starred clips)
+            let nonStarredClips = clipboardManager.clips.filter { !$0.isStarred }
+            if !nonStarredClips.isEmpty {
+                let starClipItem = NSMenuItem(title: "Star Clip", action: nil, keyEquivalent: "")
+                let starSubmenu = NSMenu()
+
+                for clip in nonStarredClips {
+                    let starItem = NSMenuItem(title: clip.displayText, action: #selector(starClipSelected(_:)), keyEquivalent: "")
+                    starItem.target = self
+                    starItem.representedObject = clip
+                    starSubmenu.addItem(starItem)
+                }
+
+                starClipItem.submenu = starSubmenu
+                menu.addItem(starClipItem)
+            }
+
+            // Unstar Clip submenu (only show if there are starred clips)
+            let starredClips = clipboardManager.clips.filter { $0.isStarred }
+            if !starredClips.isEmpty {
+                let unstarClipItem = NSMenuItem(title: "Unstar Clip", action: nil, keyEquivalent: "")
+                let unstarSubmenu = NSMenu()
+
+                for clip in starredClips {
+                    let unstarItem = NSMenuItem(title: clip.displayText, action: #selector(unstarClipSelected(_:)), keyEquivalent: "")
+                    unstarItem.target = self
+                    unstarItem.representedObject = clip
+                    unstarSubmenu.addItem(unstarItem)
+                }
+
+                unstarClipItem.submenu = unstarSubmenu
+                menu.addItem(unstarClipItem)
+            }
+
             // Delete Clip submenu
             let deleteClipItem = NSMenuItem(title: "Delete Clip", action: nil, keyEquivalent: "")
             let deleteSubmenu = NSMenu()
-            
+
             for clip in clipboardManager.clips {
                 let deleteItem = NSMenuItem(title: clip.displayText, action: #selector(deleteClipSelected(_:)), keyEquivalent: "")
                 deleteItem.target = self
                 deleteItem.representedObject = clip
                 deleteSubmenu.addItem(deleteItem)
             }
-            
+
             deleteClipItem.submenu = deleteSubmenu
             menu.addItem(deleteClipItem)
-            
+
             // Delete All Clips
             let deleteAllItem = NSMenuItem(title: "Delete All Clips…", action: #selector(deleteAllClips), keyEquivalent: "")
             deleteAllItem.target = self
             menu.addItem(deleteAllItem)
-            
+
             menu.addItem(NSMenuItem.separator())
         }
         
@@ -157,6 +191,18 @@ class StatusBarManager: ObservableObject {
         clipboardManager.selectClip(clip, autoPaste: shouldAutoPaste)
     }
     
+    @objc private func starClipSelected(_ sender: NSMenuItem) {
+        guard let clip = sender.representedObject as? Clip else { return }
+        clipboardManager.starClip(clip)
+        updateMenu()
+    }
+
+    @objc private func unstarClipSelected(_ sender: NSMenuItem) {
+        guard let clip = sender.representedObject as? Clip else { return }
+        clipboardManager.unstarClip(clip)
+        updateMenu()
+    }
+
     @objc private func deleteClipSelected(_ sender: NSMenuItem) {
         guard let clip = sender.representedObject as? Clip else { return }
         clipboardManager.deleteClip(clip)
