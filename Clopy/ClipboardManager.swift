@@ -113,12 +113,17 @@ class ClipboardManager: ObservableObject {
         }
     }
 
-    /// Delete all clips
+    /// Delete all non-starred clips (starred clips are preserved)
     func deleteAllClips() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            self.clips.removeAll()
-            self.logger.info("Deleted all clips")
+            let initialCount = self.clips.count
+            let starredCount = self.clips.filter { $0.isStarred }.count
+
+            self.clips.removeAll { !$0.isStarred }
+
+            let deletedCount = initialCount - self.clips.count
+            self.logger.info("Deleted \(deletedCount) non-starred clips, preserved \(starredCount) starred clips")
         }
     }
 

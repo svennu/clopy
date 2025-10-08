@@ -210,13 +210,37 @@ class StatusBarManager: ObservableObject {
     }
     
     @objc private func deleteAllClips() {
+        let nonStarredClips = clipboardManager.clips.filter { !$0.isStarred }
+        let starredClips = clipboardManager.clips.filter { $0.isStarred }
+
+        // If all clips are starred, show informational dialog
+        if nonStarredClips.isEmpty && !starredClips.isEmpty {
+            let alert = NSAlert()
+            alert.messageText = "All Clips Are Starred"
+            alert.informativeText = "All \(starredClips.count) clips are starred and will be preserved. No clips will be deleted."
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+            return
+        }
+
+        // If there are no clips at all, do nothing
+        if clipboardManager.clips.isEmpty {
+            return
+        }
+
+        // Standard confirmation for deleting non-starred clips
         let alert = NSAlert()
-        alert.messageText = "Delete All Clips"
-        alert.informativeText = "Are you sure you want to delete all clips? This action cannot be undone."
+        alert.messageText = "Delete All Non-Starred Clips"
+        if starredClips.isEmpty {
+            alert.informativeText = "Are you sure you want to delete all \(nonStarredClips.count) clips? This action cannot be undone."
+        } else {
+            alert.informativeText = "Are you sure you want to delete \(nonStarredClips.count) non-starred clips? \(starredClips.count) starred clips will be preserved. This action cannot be undone."
+        }
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "Delete All")
+        alert.addButton(withTitle: "Delete")
         alert.addButton(withTitle: "Cancel")
-        
+
         let response = alert.runModal()
         if response == .alertFirstButtonReturn {
             clipboardManager.deleteAllClips()

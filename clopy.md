@@ -94,7 +94,9 @@ No other features are included. Clips are not persisted to disk; they are cleare
    - Updates in‑memory list and refreshes the menu immediately
 6) Delete all clips
    - Confirmation required
-   - Clears in‑memory list and menu
+   - Deletes only non-starred clips; starred clips are preserved
+   - If all clips are starred, shows informational dialog and preserves all clips
+   - Updates in‑memory list and refreshes the menu
 7) Persistence
    - None; all data is in‑memory only and cleared on quit
    - Star state is also in-memory only and not persisted
@@ -236,6 +238,11 @@ The application is **fully functional for testing**:
 - Starred clips remain in chronological order (most recent first)
 - Visual distinction with ⭐ prefix makes starred clips easy to identify
 - No confirmation required for starring/unstarring (immediate action)
+
+**Delete All Clips Behavior:**
+- "Delete All Clips…" now preserves starred clips and only deletes non-starred clips
+- If all clips are starred, shows informational dialog and preserves all clips
+- Confirmation dialog clearly indicates how many clips will be deleted and how many starred clips will be preserved
 
 ## 21) Next Steps After Testing
 **If auto-paste works without sandboxing:**
