@@ -76,18 +76,18 @@ xcodebuild -exportArchive \
            -exportPath ./build/export \
            -exportOptionsPlist ./build/ExportOptions.plist
 
-# Create DMG (requires create-dmg tool)
-# Install: brew install create-dmg
-create-dmg \
-  --volname "Clopy" \
-  --window-pos 200 120 \
-  --window-size 600 300 \
-  --icon-size 100 \
-  --icon "Clopy.app" 175 120 \
-  --hide-extension "Clopy.app" \
-  --app-drop-link 425 120 \
-  "./build/Clopy.dmg" \
-  "./build/export/"
+# Option A: Create DMG using native macOS tools
+mkdir -p ./build/dmg-staging
+cp -R ./build/export/Clopy.app ./build/dmg-staging/
+hdiutil create -volname "Clopy" \
+               -srcfolder ./build/dmg-staging \
+               -ov -format UDZO \
+               ./build/Clopy.dmg
+
+# Option B: Create ZIP archive (simpler alternative)
+cd ./build/export
+zip -r ../Clopy.zip Clopy.app
+cd ../..
 ```
 
 #### Build Requirements
