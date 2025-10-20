@@ -129,6 +129,21 @@ xcodebuild -project Clopy.xcodeproj \
    - Press ⌃⌥V to select clips with auto-paste
    - Configure hotkey via "Change Hotkey..." menu
 
+## Development Notes
+
+**Current Status**: Testing phase with sandboxing disabled for auto-paste functionality evaluation.
+
+- **Sandboxing**: Currently disabled in `Clopy.entitlements` for testing auto-paste features
+- **Auto-paste**: Uses CGEvent keystroke simulation (requires Accessibility permission)
+- **Fallback**: AppleScript keystroke simulation if CGEvent fails
+- **Distribution**: Deciding between App Store (sandboxed) vs direct distribution (non-sandboxed)
+
+**For Developers**:
+- The app is fully functional for testing without sandbox restrictions
+- See `clopy.md` for complete specification and implementation details
+- All core features implemented: clipboard monitoring, hotkey system, star management
+- Comprehensive logging available via Console.app (filter: "com.clopy.app")
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file.
