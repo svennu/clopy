@@ -25,12 +25,98 @@ See [clopy.md](clopy.md) for the complete specification.
 3. Launch Clopy from Applications
 
 ### Build from Source
+
+#### Option 1: Xcode GUI
 ```bash
 git clone https://github.com/yourusername/clopy.git
 cd clopy
 open Clopy.xcodeproj
 ```
 Build and run in Xcode (⌘R)
+
+#### Option 2: Command Line Build
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/clopy.git
+cd clopy
+
+# Build for local development (Debug)
+xcodebuild -project Clopy.xcodeproj \
+           -scheme Clopy \
+           -configuration Debug \
+           -derivedDataPath ./build \
+           build
+
+# Run the built app
+open ./build/Build/Products/Debug/Clopy.app
+
+# Or build for release (optimized)
+xcodebuild -project Clopy.xcodeproj \
+           -scheme Clopy \
+           -configuration Release \
+           -derivedDataPath ./build \
+           build
+
+# Install to Applications folder (optional)
+cp -R ./build/Build/Products/Release/Clopy.app /Applications/
+```
+
+#### Option 3: Create Distributable Package
+```bash
+# Archive the project
+xcodebuild -project Clopy.xcodeproj \
+           -scheme Clopy \
+           -configuration Release \
+           -archivePath ./build/Clopy.xcarchive \
+           archive
+
+# Export as app bundle
+xcodebuild -exportArchive \
+           -archivePath ./build/Clopy.xcarchive \
+           -exportPath ./build/export \
+           -exportOptionsPlist ./build/ExportOptions.plist
+
+# Create DMG (requires create-dmg tool)
+# Install: brew install create-dmg
+create-dmg \
+  --volname "Clopy" \
+  --window-pos 200 120 \
+  --window-size 600 300 \
+  --icon-size 100 \
+  --icon "Clopy.app" 175 120 \
+  --hide-extension "Clopy.app" \
+  --app-drop-link 425 120 \
+  "./build/Clopy.dmg" \
+  "./build/export/"
+```
+
+#### Build Requirements
+- **Xcode 16.0+** with Command Line Tools
+- **macOS 13.0+** (Ventura) for building and running
+- **Swift 5.9+** (included with Xcode)
+
+#### Troubleshooting Build Issues
+```bash
+# Clean build folder
+rm -rf ./build
+
+# Reset Xcode derived data (if using Xcode)
+rm -rf ~/Library/Developer/Xcode/DerivedData
+
+# Verify Xcode command line tools
+xcode-select --install
+
+# Check available schemes
+xcodebuild -project Clopy.xcodeproj -list
+
+# Build with verbose output for debugging
+xcodebuild -project Clopy.xcodeproj \
+           -scheme Clopy \
+           -configuration Debug \
+           -derivedDataPath ./build \
+           -verbose \
+           build
+```
 
 ## Setup
 
