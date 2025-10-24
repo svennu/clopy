@@ -24,6 +24,11 @@ See [clopy.md](clopy.md) for the complete specification.
 2. Open the DMG file and drag `Clopy.app` to Applications folder
 3. Launch Clopy from Applications
 
+**Security Note**: When first launching, macOS may show "Apple could not verify Clopy is free of malware" because this is an unsigned testing build. To run the app:
+1. Go to **System Preferences** → **Security & Privacy** → **General**
+2. Click **"Open Anyway"** next to the Clopy warning
+3. Confirm by clicking **"Open"** in the dialog
+
 ### Build from Source
 
 #### Option 1: Xcode GUI
