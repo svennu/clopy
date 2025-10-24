@@ -20,8 +20,8 @@ See [clopy.md](clopy.md) for the complete specification.
 ## Installation
 
 ### Download Release
-1. Download the latest release from [Releases](../../releases)
-2. Unzip and drag `Clopy.app` to Applications folder
+1. Download the latest DMG from [Releases](../../releases)
+2. Open the DMG file and drag `Clopy.app` to Applications folder
 3. Launch Clopy from Applications
 
 ### Build from Source
@@ -76,18 +76,13 @@ xcodebuild -exportArchive \
            -exportPath ./build/export \
            -exportOptionsPlist ./build/ExportOptions.plist
 
-# Option A: Create DMG using native macOS tools
+# Create DMG for distribution
 mkdir -p ./build/dmg-staging
 cp -R ./build/export/Clopy.app ./build/dmg-staging/
 hdiutil create -volname "Clopy" \
                -srcfolder ./build/dmg-staging \
                -ov -format UDZO \
                ./build/Clopy.dmg
-
-# Option B: Create ZIP archive (simpler alternative)
-cd ./build/export
-zip -r ../Clopy.zip Clopy.app
-cd ../..
 ```
 
 #### Build Requirements
