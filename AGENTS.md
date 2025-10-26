@@ -1,0 +1,1 @@
+Use slash commands from .github/prompts
