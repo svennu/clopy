@@ -2,7 +2,7 @@
 
 Minimal macOS menu bar clipboard manager built with specification-driven development. Captures text clips from ⌘C, provides instant access via status bar or global hotkey (⌃⌥V) with auto-paste. In-memory only, privacy-focused. macOS 13+, SwiftUI+AppKit.
 
-This project uses [GitHub Spec-Kit](https://github.com/github/spec-kit) for specification-driven development. See [clopy.md](clopy.md) for the complete specification.
+This project uses [GitHub Spec-Kit](https://github.com/github/spec-kit) for specification-driven development. See [clopy.md](clopy.md) for the complete specification and [speckit.md](speckit.md) for available Spec-Kit commands.
 
 ## Features
 
