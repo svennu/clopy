@@ -1,28 +1,24 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version Change: none → 1.0.0
-Rationale: Initial constitution ratification
+Version Change: 1.1.0 → 1.2.0
+Rationale: Strengthened documentation synchronization requirements for all changes
 
-Modified Principles: N/A (initial creation)
+Modified Principles: N/A
 Added Sections:
-  - All core principles (1-12)
-  - Governance framework
-  - Compliance expectations
+  - Documentation Synchronization Requirements (under Documentation Requirements)
+  - Enhanced Change Management requirements
 
 Removed Sections: N/A
 
-Templates Requiring Updates:
-  ⚠ .specify/templates/plan-template.md (pending creation)
-  ⚠ .specify/templates/spec-template.md (pending creation)
-  ⚠ .specify/templates/tasks-template.md (pending creation)
+Templates Requiring Updates: None
 
-Follow-up TODOs: Create supporting template files to align with constitution
+Follow-up TODOs: Apply documentation sync requirements to all ongoing work
 -->
 
 # Clopy Project Constitution
 
-**Version:** 1.0.0  
+**Version:** 1.2.0  
 **Ratified:** 2025-10-26  
 **Last Amended:** 2025-10-26
 
@@ -232,22 +228,52 @@ This constitution establishes the foundational principles governing the developm
 3. It is specified in the specification document with clear requirements
 4. Implementation uses only public platform APIs
 5. It does not compromise privacy, performance, or reliability principles
+6. **Both README.md and clopy.md are updated to reflect the new feature**
 
 **Removal Criteria:** A feature should be removed when:
 1. It becomes redundant with platform or other features
 2. It conflicts with core principles or user expectations
 3. It cannot be maintained or fixed within reasonable constraints
 4. Usage data (if collected) shows negligible adoption
+5. **Both README.md and clopy.md are updated to remove references**
 
-**Change Management:** Breaking changes require:
+**Change Management:** 
+
+*All changes (features, fixes, refactors) require:*
+1. **Update to clopy.md specification with implementation status**
+2. **Update to README.md if user-facing behavior changes**
+3. Verification that both documents accurately reflect current state
+
+*Breaking changes additionally require:*
 1. Major version bump (semantic versioning)
-2. Update to specification document
-3. Documented migration path
-4. User-facing changelog in release notes
+2. Documented migration path in both README.md and clopy.md
+3. User-facing changelog in release notes
 
 ---
 
 ### Documentation Requirements
+
+**Required Project Documentation:** The project MUST maintain:
+
+- **README.md** at repository root containing:
+  - Project summary and purpose
+  - Feature overview
+  - Installation instructions (download and build from source)
+  - Setup and usage guidance
+  - Requirements (macOS version, Xcode version)
+  - Development notes and current status
+  - License information
+  - Links to comprehensive specification
+
+- **clopy.md** at repository root containing:
+  - Complete feature specification
+  - Technical implementation details
+  - UX requirements and user flows
+  - Data model and architecture
+  - Acceptance criteria
+  - Implementation status tracking
+  - Platform considerations (App Store, sandboxing, permissions)
+  - All feature decisions and rationale
 
 **Release Documentation:** All releases include:
 - Installation instructions
@@ -259,6 +285,14 @@ This constitution establishes the foundational principles governing the developm
 - Public APIs documented with Swift DocC comments
 - Complex algorithms explained with inline rationale
 - Architecture decisions recorded in specification
+
+**Documentation Synchronization:** Every code change MUST ensure:
+- **clopy.md** reflects current implementation status, technical decisions, and acceptance criteria
+- **README.md** accurately describes user-facing features, setup, and current development status
+- Both documents reference each other appropriately (README links to clopy.md for details)
+- Implementation status sections in clopy.md are kept up-to-date with checkmarks
+- No orphaned references to removed features in either document
+- Version numbers, dates, and status indicators are current
 
 ---
 
@@ -342,6 +376,8 @@ This constitution establishes the foundational principles governing the developm
 
 - Constitution compliance reviewed during specification updates
 - Breaking changes flagged during code review
+- **Documentation synchronization verified before merging changes**
+- **README.md and clopy.md consistency checked during reviews**
 - Quarterly review of principles against actual practice
 - User feedback monitored for principle violations
 
@@ -358,7 +394,7 @@ When principles conflict in specific scenarios:
 ## Versioning
 
 This constitution follows semantic versioning:
-- **Current Version:** 1.0.0
+- **Current Version:** 1.2.0
 - **Ratified:** 2025-10-26
 - **Last Amended:** 2025-10-26
 
