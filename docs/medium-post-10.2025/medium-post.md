@@ -6,9 +6,9 @@ macOS is great — until you realize it still can’t remember more than one cop
 My choices were simple:  
 **Option A**: pay €20 for an existing app.  
 **Option B**: spend about five hours building exactly what I wanted.  
-I’m a software engineer, so obviously I picked Option B. Because what kind of developer would I be if I took the sensible route?
+I’m a software engineer, so obviously I picked **Option B**. Because what kind of developer would I be if I took the sensible route?
 
-Five hours later, I had the multi-clipboard I’d always wanted — and now it’s free for anyone to use.
+Five hours later, I had the multi-clipboard I’d always wanted — and now it’s **free for anyone to use.**
 
 ![clopy](https://raw.githubusercontent.com/svennu/clopy/refs/heads/medium-post-10.2025/docs/medium-post-10.2025/clopy.png "clopy")
 
@@ -23,21 +23,21 @@ Prompt to the LLM:
 
 Thirty minutes of back-and-forth later, I had a basic spec in *clopy.md*.
 
-Specification-driven development: spec first, code follows. I’ve been doing this for a while now — start with the spec, then code, keep the spec, iterate — and it really feels like the right way to work with LLMs.
+Specification-driven development: **spec first, code follows**. I’ve been doing this for a while now — start with the spec, then code, keep the spec, iterate — and it really feels like the right way to work with LLMs.
 
 Then came the comedy.
 
-**Moment #1** — “Execute clopy.md and open Xcode”  
+**Moment #1 — “Execute clopy.md and open Xcode”**  
 The LLM politely informed me it can’t execute Markdown files. Oops. Rephrased to “read clopy.md and create the app” — and we were off.
 
-**Moment #2** — Forgot dinner  
+**Moment #2 — Forgot dinner**  
 Got so absorbed debugging paste behavior that I skipped dinner. Classic developer move — hunger fades when the bug’s on the run.
 
-**Moment #3** — The paste mystery  
+**Moment #3 — The paste mystery**  
 After several “I can’t paste them” failures, I discovered the real culprit: sandboxing. Turned it off. Paste works. Dinner can wait. Will need to deal with the sandboxing once I want to release.
 
 My working pattern soon settled: start each specification session with “Read and learn clopy.md and the code.”  
-The model handled boilerplate and platform quirks; I focused on requirements. When GPT-5 stumbled on Swift specifics, I switched to Claude Sonnet 4 — better results immediately. At the end, I cross-validated both.
+The model handled boilerplate and platform quirks; I focused on requirements. When GPT-5 stumbled on Swift specifics, I switched to **Claude Sonnet 4** — better results immediately. At the end, I cross-validated both.
 
 Then came the icon adventure.
 
@@ -75,7 +75,7 @@ From “I need this” to “I use this daily” in roughly five hours:
 - ~30 minutes for the spec  
 - ~4½ hours for implementation, debugging, polish, and icons  
 
-The app is free and available now:
+**The app is free and available now:**
 
 - GitHub: [svennu/clopy](https://github.com/svennu/clopy)  
 - Downloadable `.dmg` ready to use (see the **Releases** on GitHub)  
@@ -91,7 +91,7 @@ Years of experience matter more than ever. I know what to ask, how to rephrase w
 
 I structure the problem; the LLM handles the details. But I can still code when it counts, and that makes all the difference.
 
-Experience + modern tools = rapid capability expansion.
+**Experience + modern tools = rapid capability expansion.**
 
 It’s not about replacing engineers — it’s about amplifying what experience enables us to do.
 
@@ -104,7 +104,7 @@ It’s an exciting time to be a software engineer.
 The barrier to building small, useful tools has never been lower.  
 Have an itch? Scratch it.  
 Miss a feature? Build it.  
-Hours, not weeks.
+**Hours, not weeks.**
 
 With a bit of platform know-how, architectural instincts from years in the field, and today’s AI tools, you can wander into new territory faster than ever.
 
@@ -114,7 +114,7 @@ So next time you see a €20 app and think, “I could build that,” — maybe 
 
 You might end up with a daily-use tool, a fun story, and something free to share with others.
 
-Experience + tools = superpower. Go use it.
+**Experience + tools = superpower.** Go use it.
 
 ---
 
