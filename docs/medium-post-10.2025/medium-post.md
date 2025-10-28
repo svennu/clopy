@@ -10,6 +10,8 @@ I’m a software engineer, so obviously I picked Option B. Because what kind of 
 
 Five hours later, I had the multi-clipboard I’d always wanted — and now it’s free for anyone to use.
 
+![clopy](https://raw.githubusercontent.com/svennu/clopy/refs/heads/medium-post-10.2025/docs/medium-post-10.2025/clopy.png "clopy")
+
 ---
 
 ## The Journey
@@ -56,8 +58,8 @@ The LLM responded like a polite, over-achieving intern. It:
 3. Created an HTML preview grid with all variants  
 4. Opened it in my browser for review  
 
-Press enter or click to view image in full size  
-Press enter or click to view image in full size  
+![python](https://raw.githubusercontent.com/svennu/clopy/refs/heads/medium-post-10.2025/docs/medium-post-10.2025/python.png "python")
+![icon](https://raw.githubusercontent.com/svennu/clopy/refs/heads/medium-post-10.2025/docs/medium-post-10.2025/icon.png "icon")
 
 I picked version 4, asked for a different background, and it repeated the process — new colors, same automation.
 
