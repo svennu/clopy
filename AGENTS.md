@@ -1,2 +1,2 @@
-Use slash commands from .github/prompts
-About the project read README.md
+Read about the project from README.md.
+Read more slash commands from `.github/prompts/`

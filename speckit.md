@@ -4,20 +4,20 @@ This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit)** for 
 
 ## 🔍 Discovery & Planning Phase
 
-### `/speckit.clarify`
+### `/clarify`
 **Purpose**: Identify underspecified areas in the feature spec by asking targeted clarification questions.
 
 **What it does**:
 - Scans the current spec for ambiguities and missing decision points
 - Asks up to 5 highly targeted questions
 - Encodes answers back into the spec file
-- **Must run BEFORE `/speckit.plan`** to reduce downstream rework risk
+- **Must run BEFORE `/plan`** to reduce downstream rework risk
 
 **Use when**: You have a draft spec but need to resolve ambiguities before planning implementation.
 
 ---
 
-### `/speckit.specify <feature description>`
+### `/specify <feature description>`
 **Purpose**: Create or update the feature specification from natural language.
 
 **What it does**:
@@ -26,13 +26,13 @@ This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit)** for 
 - Generates complete specification using the spec template
 - Preserves technical terms and acronyms
 
-**Example**: `/speckit.specify Add OAuth2 integration for the API` → creates "oauth2-api-integration" branch with full spec
+**Example**: `/specify Add OAuth2 integration for the API` → creates "oauth2-api-integration" branch with full spec
 
 ---
 
 ## 📋 Design & Architecture Phase
 
-### `/speckit.plan`
+### `/plan`
 **Purpose**: Execute implementation planning workflow to generate design artifacts.
 
 **What it does**:
@@ -45,11 +45,11 @@ This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit)** for 
 - Evaluates constitution compliance gates
 - Updates agent context
 
-**Runs after**: `/speckit.clarify` completes
+**Runs after**: `/clarify` completes
 
 ---
 
-### `/speckit.tasks`
+### `/tasks`
 **Purpose**: Generate actionable, dependency-ordered task list for implementation.
 
 **What it does**:
@@ -59,13 +59,13 @@ This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit)** for 
 - Creates dependency graph showing completion order
 - Provides parallel execution examples
 
-**Runs after**: `/speckit.plan` completes
+**Runs after**: `/plan` completes
 
 ---
 
 ## ✅ Validation Phase
 
-### `/speckit.checklist [custom requirements]`
+### `/checklist [custom requirements]`
 **Purpose**: Generate custom checklists to validate requirements quality ("unit tests for English").
 
 **Critical Concept**: Checklists validate the **quality of requirements**, not implementation.
@@ -81,7 +81,7 @@ This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit)** for 
 
 ---
 
-### `/speckit.analyze`
+### `/analyze`
 **Purpose**: Perform cross-artifact consistency and quality analysis.
 
 **What it does**:
@@ -94,13 +94,13 @@ This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit)** for 
 - Validates constitution compliance (CRITICAL priority)
 - Offers optional remediation plan
 
-**Runs after**: `/speckit.tasks` completes
+**Runs after**: `/tasks` completes
 
 ---
 
 ## 🚀 Implementation Phase
 
-### `/speckit.implement`
+### `/implement`
 **Purpose**: Execute the implementation plan by processing all tasks.
 
 **What it does**:
@@ -116,7 +116,7 @@ This project uses **[GitHub Spec-Kit](https://github.com/github/spec-kit)** for 
 
 ## 🏛️ Governance
 
-### `/speckit.constitution [principles]`
+### `/constitution [principles]`
 **Purpose**: Create or update the project constitution and sync templates.
 
 **What it does**:
