@@ -4,7 +4,7 @@ Minimal macOS menu bar clipboard manager built with specification-driven develop
 
 📖 **Read the story**: [5 Hours, One LLM, and the Multi-Clipboard I Always Wanted](https://medium.com/@svenkirsime/5-hours-one-llm-and-the-multi-clipboard-i-always-wanted-0b2504bcd462) (also available in [docs/medium-post-10.2025/medium-post.md](docs/medium-post-10.2025/medium-post.md))
 
-This project uses [GitHub Spec-Kit](https://github.com/github/spec-kit) for specification-driven development. See [clopy.md](clopy.md) for the complete specification and [speckit.md](speckit.md) for available Spec-Kit commands.
+See [clopy.md](clopy.md) for the complete specification and [speckit.md](speckit.md) for available Spec-Kit commands.
 
 ## Features
 
