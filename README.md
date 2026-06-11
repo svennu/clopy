@@ -1,6 +1,6 @@
 # Clopy
 
-Minimal macOS menu bar clipboard manager built with specification-driven development. Captures text clips from ⌘C, provides instant access via status bar or global hotkey (⌃⌥V) with auto-paste. In-memory only, privacy-focused. macOS 13+, SwiftUI+AppKit.
+Minimal macOS menu bar clipboard manager. Captures text clips from ⌘C, provides instant access via the status bar or a global hotkey (⌃⌥V), and supports automatic paste. Clipboard contents remain in memory and are cleared when the app quits. Built for macOS 13+ with SwiftUI and AppKit.
 
 📖 **Read the story**: [5 Hours, One LLM, and the Multi-Clipboard I Always Wanted](https://medium.com/@svenkirsime/5-hours-one-llm-and-the-multi-clipboard-i-always-wanted-0b2504bcd462) (also available in [docs/medium-post-10.2025/medium-post.md](docs/medium-post-10.2025/medium-post.md))
 
@@ -27,7 +27,7 @@ See [clopy.md](clopy.md) for the complete specification.
 3. Launch Clopy from Applications
 
 **Security Note**: When first launching, macOS may show "Apple could not verify Clopy is free of malware" because this is an unsigned testing build. To run the app:
-1. Go to **System Preferences** → **Security & Privacy** → **General**
+1. Go to **System Settings** → **Privacy & Security**
 2. Click **"Open Anyway"** next to the Clopy warning
 3. Confirm by clicking **"Open"** in the dialog
 
@@ -35,7 +35,7 @@ See [clopy.md](clopy.md) for the complete specification.
 
 #### Option 1: Xcode GUI
 ```bash
-git clone https://github.com/yourusername/clopy.git
+git clone https://github.com/svennu/clopy.git
 cd clopy
 open Clopy.xcodeproj
 ```
@@ -44,7 +44,7 @@ Build and run in Xcode (⌘R)
 #### Option 2: Command Line Build
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/clopy.git
+git clone https://github.com/svennu/clopy.git
 cd clopy
 
 # Build for local development (Debug)
@@ -52,6 +52,7 @@ xcodebuild -project Clopy.xcodeproj \
            -scheme Clopy \
            -configuration Debug \
            -derivedDataPath ./build \
+           CODE_SIGNING_ALLOWED=NO \
            build
 
 # Run the built app
@@ -124,7 +125,7 @@ xcodebuild -project Clopy.xcodeproj \
 
 1. **Launch**: Clopy appears in menu bar (clipboard icon)
 2. **Accessibility Permission**: For auto-paste, grant permission when prompted:
-   - System Preferences → Privacy & Security → Accessibility → Add Clopy
+   - System Settings → Privacy & Security → Accessibility → Add Clopy
 3. **Usage**:
    - Copy text anywhere (⌘C) - automatically captured
    - Click menu bar icon to select clips (copies to clipboard)
@@ -143,9 +144,10 @@ xcodebuild -project Clopy.xcodeproj \
 **For Developers**:
 - The app is fully functional for testing without sandbox restrictions
 - See `clopy.md` for complete specification and implementation details
+- See `AGENTS.md` for repository guidance used by Codex and other coding agents
 - All core features implemented: clipboard monitoring, hotkey system, star management
 - Comprehensive logging available via Console.app (filter: "com.clopy.app")
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file.
+No license file is currently included in this repository.

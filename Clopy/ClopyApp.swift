@@ -3,7 +3,7 @@ import AppKit
 import OSLog
 
 @main
-struct ClopySonnetApp: App {
+struct ClopyApp: App {
     @StateObject private var clipboardManager = ClipboardManager()
     @StateObject private var hotkeyManager = HotkeyManager()
     @StateObject private var statusBarManager: StatusBarManager
@@ -21,10 +21,9 @@ struct ClopySonnetApp: App {
 
         logger.info("Clopy app initialized")
     }
-    
+
     var body: some Scene {
-        // We don't need a window scene since this is a menu bar app
-        // The app runs entirely from the status bar
+        // The app runs entirely from the status bar and does not need a window scene.
         Settings {
             EmptyView()
         }
