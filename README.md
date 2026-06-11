@@ -82,7 +82,7 @@ xcodebuild -project Clopy.xcodeproj \
 xcodebuild -exportArchive \
            -archivePath ./build/Clopy.xcarchive \
            -exportPath ./build/export \
-           -exportOptionsPlist ./build/ExportOptions.plist
+           -exportOptionsPlist ./ExportOptions.plist
 
 # Create DMG for distribution
 mkdir -p ./build/dmg-staging
