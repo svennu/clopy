@@ -1,260 +1,219 @@
-# Clopy – macOS Menu Bar Clipboard Selector (Specification)
+# Clopy – Current Implementation Specification
 
-Status: Testing Non-Sandboxed v2.2 • Owner: You • Target: Direct distribution (testing) • No tests required
+Status: Current code documentation • Target: macOS 13+ direct/non-sandboxed testing build • Automated tests: none
 
 ## 1) Summary
-A minimal macOS menu bar app that keeps an in-memory list of text clips captured when the user performs the system Copy (Cmd+C) while the app is running. From the status bar icon (and a keyboard shortcut), the user can:
-- View all captured clips (text only)
-- Open the list via a configurable global shortcut (default Control–Option–V) to quickly choose a clip; selection automatically pastes the content at the current cursor location (requires Accessibility permission). The list opens anchored to the status bar icon for easy keyboard selection.
-- Star clips to prevent them from being automatically removed when new clips are added
-- Delete a specific clip
-- Delete all clips
 
-No other features are included. Clips are not persisted to disk; they are cleared when the app quits.
+Clopy is a native macOS menu bar clipboard manager. It runs as an `LSUIElement` app with no Dock icon, monitors the general pasteboard while the app is running, and keeps text clips in memory only.
 
-## 2) Goals and Non‑Goals
-- Goals
-  - Text-only clipboard helper: clips are captured via the system Copy command (Cmd+C) and stored in memory
-  - Fast, reliable way to choose from recently copied snippets and automatically paste them at cursor location; selection is presented via a configurable global shortcut (default Control–Option–V).
-  - Simple UI entirely from the status bar menu; no main window
-  - App Store‑suitable architecture
-- Non‑Goals
-  - Rich content types (RFT/RTF, images, files) — text only
-  - Cloud sync, accounts, analytics
-  - Editing clips’ content or adding via custom editors (clips are sourced from Cmd+C; only deletion is supported)
-  - Rich text formatting, images, or files (text only)
-  - Cloud sync, accounts, analytics
-  - Editing clips' content or adding via custom editors
+Users can:
+- View captured text clips from the status bar menu.
+- Select a clip from the status bar menu to copy it back to the general pasteboard for manual pasting.
+- Press the configurable global hotkey, default Control-Option-V, to open the same status bar menu and select a clip for automatic paste.
+- Star and unstar clips in memory.
+- Delete one clip, or delete all non-starred clips after confirmation.
+- Change or reset the global hotkey from the status bar menu.
+- Quit from the status bar menu.
 
-## 3) Scope
-- In scope
-  - Menu bar status item with menu listing all current in‑memory clips (most recent first)
-  - Text only
-  - Selecting a clip from status bar menu writes its content to the general pasteboard (public.utf8-plain-text) for manual pasting
-  - Selecting a clip from hotkey menu automatically pastes the content at the current cursor location
-  - Star/unstar clips to prevent automatic removal when new clips are added (in-memory only)
-  - “Delete Clip” and “Delete All Clips…” management actions accessible from the status menu
-  - Global keyboard shortcut to present the list for quick selection (see UX)
-- Out of scope
-  - Any windows beyond system dialogs/alerts for confirmations or an optional popover anchored to the status item
-  - Search, tagging, reordering, or pinning beyond starring
-  - Persistence to disk or any background services
+Clipboard contents and star state are not persisted. They are cleared when the app quits. Only hotkey preferences are persisted in `UserDefaults`.
 
-## 4) Users and Primary Use Cases
-- Users: macOS users who frequently reuse text snippets during a session
-- Use cases
-  1) Copy text in any app (Cmd+C); Clopy automatically captures it into the in‑memory list
-  2) Choose a snippet from the menu bar (copies to pasteboard for manual Cmd+V) or hotkey menu (auto-pastes at cursor)
-  3) Star important snippets to prevent them from being automatically removed
-  4) Clean up the list by deleting a snippet
-  5) Clear all snippets when no longer needed
+## 2) Goals and Non-Goals
 
-## 5) UX Requirements
-- App runs as a background status bar app (no Dock icon, no app menu). App is idendified and accessf from an icon in the status bar.
-  - LSUIElement = 1
-- Status bar icon is a template image/SF Symbol (monochrome) with proper light/dark mode support
-- Menu layout
-  - Section A: one menu item per clip (most recent first)
-    - Display: show a clipped/trimmed version of the text (single‑line, middle‑truncated with ellipsis). Example: first 30 chars + … + last 20 chars; collapse newlines to spaces
-    - Starred clips show with ⭐ prefix in their display text
-    - Selecting a clip from status bar menu: sets its content (string) to NSPasteboard.general; user then pastes with Cmd+V
-  - Separator
-  - Section B: Management
-    - "Star Clip" submenu listing non-starred clips; selecting stars the clip immediately
-    - "Unstar Clip" submenu listing starred clips; selecting unstars the clip immediately
-    - “Delete Clip” submenu listing each clip by its trimmed display; selecting deletes immediately (no confirmation), menu refreshes automatically
-    - “Delete All Clips…” item triggers confirmation alert (Yes/Cancel)
-  - Final separator (optional) and “Quit”
-- Confirmations
-  - “Delete All Clips…” requires confirmation
-  - Single delete has no confirmation
-- Keyboard shortcut
-  - Provide a configurable global hotkey (default: Control‑Option‑V) that opens the status menu listing the current clips for keyboard navigation and selection; selecting a clip from hotkey menu automatically pastes it at cursor location (menu is opened programmatically via statusItem.button?.performClick(nil))
-  - Changeable via a “Change Hotkey…” item in the status menu that opens a small capture popover; persisted in UserDefaults
+### Goals
+- Provide a simple text-only clipboard helper for a single macOS session.
+- Keep recent text clips available from a status bar menu, ordered with the newest clip first.
+- Support a global hotkey that opens the clip menu and marks the next clip selection for automatic paste.
+- Preserve starred clips when enforcing retention or deleting all clips.
+- Avoid writing clipboard contents to disk.
 
-## 6) Functional Requirements
-1) Clipboard monitoring
-   - Track NSPasteboard.general.changeCount; when it increments, read public.utf8-plain-text
-   - If text exists, append it to the head of the in‑memory list
-   - Dedup strategy: if the new text matches any existing item in the list, do not add another entry (no reordering)
-   - Retention: maximum item count is internally configurable (default 15); drop oldest non-starred clips beyond the limit (FILO), starred clips are preserved
-2) Listing clips
-   - Menu shows current clips ordered by recency (most recent first)
-   - Display string is derived (trimmed, single‑line, middle‑truncated)
-3) Selecting a clip
-   - From status bar menu: Writes plain string to NSPasteboard.general with type public.utf8-plain-text; user uses Cmd+V in the target app
-   - From hotkey menu: Automatically pastes the content at the current cursor location using CGEvent keystroke simulation (falls back to AppleScript if permission not granted)
-4) Star/unstar clips
-   - Available via "Star Clip" and "Unstar Clip" submenus
-   - Starred clips are preserved when new clips are added and the limit is reached
-   - Updates in‑memory list and refreshes the menu immediately
-   - Starred clips display with ⭐ prefix
-5) Delete a specific clip
-   - Available via “Delete Clip” submenu
-   - Updates in‑memory list and refreshes the menu immediately
-6) Delete all clips
-   - Confirmation required
-   - Deletes only non-starred clips; starred clips are preserved
-   - If all clips are starred, shows informational dialog and preserves all clips
-   - Updates in‑memory list and refreshes the menu
-7) Persistence
-   - None; all data is in‑memory only and cleared on quit
-   - Star state is also in-memory only and not persisted
-8) Keyboard shortcut behavior
-   - Register a global hotkey (RegisterEventHotKey or modern equivalent)
-   - On trigger, programmatically open the status item’s menu (statusItem.button?.performClick(nil)) or show a minimal popover anchored to the status item
-9) App lifecycle
-   - Launch: create status item and menu; register hotkey; start pasteboard monitoring timer
-   - Quit from menu; no data is saved
+### Non-Goals
+- Rich content capture, including RTF, images, files, or other pasteboard types.
+- Cloud sync, accounts, analytics, or background services outside the app process.
+- Editing clip contents or adding clips manually through a custom editor.
+- Search, tagging, custom ordering, or pinning beyond the in-memory star flag.
+- Persisting clipboard history or star state across launches.
+
+
+## 3) Users and Primary Use Cases
+
+### Users
+- macOS users who frequently reuse plain-text snippets during one desktop session.
+
+### Primary Use Cases
+1. Copy or otherwise place non-empty text on the general pasteboard while Clopy is running; Clopy captures the text into its in-memory list.
+2. Choose a snippet from the status bar menu to copy it back to the pasteboard, then paste manually with Command-V.
+3. Press the global hotkey, choose a snippet from the opened status menu, and let Clopy attempt to paste automatically at the current cursor location.
+4. Star important snippets so retention and delete-all actions preserve them.
+5. Delete a single snippet, or clear all non-starred snippets after confirmation.
+
+## 4) Scope
+
+### In Scope
+- An AppKit `NSStatusItem` menu bar UI with an SF Symbol template icon named `doc.on.clipboard`.
+- Text capture from `NSPasteboard.general` when the pasteboard `changeCount` changes and `.string` content is available.
+- In-memory clip storage with a retention limit of 15 items, while preserving starred clips when the limit is enforced.
+- Display of captured clips in newest-first order.
+- Clip display text that replaces newlines and carriage returns with spaces, trims outer whitespace/newlines, and middle-truncates long text to 30 leading characters plus an ellipsis plus 20 trailing characters.
+- A star prefix (`⭐ `) in display text for starred clips.
+- Status menu clip selection that copies the clip to the general pasteboard.
+- Hotkey-opened menu clip selection that copies the clip and then attempts automatic paste.
+- Star, unstar, delete-one, delete-all-non-starred, change-hotkey, and quit menu actions.
+- Runtime diagnostics through `OSLog` using the `com.clopy.app` subsystem.
+
+### Out of Scope
+- Any primary application window. The SwiftUI app exposes only an empty Settings scene.
+- Clipboard history persistence.
+- App Store sandbox behavior as an active implementation target; sandbox and clipboard entitlements are currently commented out in the entitlements file.
+- Modifying historical documentation under `docs/` to describe current behavior.
+
+## 5) User Experience
+
+### App Shell
+- The app is configured as a UIElement application with `LSUIElement = true`.
+- The status bar button uses `NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)`.
+- The status bar button uses the `doc.on.clipboard` SF Symbol as a template image and has the tooltip `Clopy - Clipboard Manager`.
+- The app has no Dock icon and no main window.
+
+### Status Menu Layout
+The menu is rebuilt from the current in-memory clip list.
+
+1. **Clip section**
+   - If no clips exist, the menu shows a disabled `No clips` item.
+   - Otherwise, each clip appears as one menu item, newest first, using `Clip.displayText`.
+   - Selecting a clip calls `ClipboardManager.selectClip(_:autoPaste:)`.
+2. **Separator**
+3. **Management section** shown only when clips exist
+   - `Star Clip` submenu, shown only when at least one clip is not starred.
+   - `Unstar Clip` submenu, shown only when at least one clip is starred.
+   - `Delete Clip` submenu, listing every clip. Selecting an item deletes immediately without confirmation.
+   - `Delete All Clips…`, which actually deletes only non-starred clips after confirmation.
+   - Separator.
+4. **Always-visible actions**
+   - `Change Hotkey…`.
+   - Separator.
+   - `Quit` with key equivalent `q`.
+
+### Delete All Behavior
+- If there are no clips, the action does nothing.
+- If every clip is starred, an informational alert titled `All Clips Are Starred` is shown and no clip is deleted.
+- Otherwise, a warning alert titled `Delete All Non-Starred Clips` asks for confirmation.
+- Confirming deletes non-starred clips and preserves starred clips.
+
+### Hotkey Behavior
+- The default global hotkey is Control-Option-V.
+- The hotkey is registered with Carbon `RegisterEventHotKey`.
+- Pressing the hotkey calls the status item button's `performClick(nil)` on the main queue and sets an internal hotkey-menu flag.
+- When a clip is selected while that flag is set, Clopy copies the clip and attempts automatic paste, then clears the flag.
+- `Change Hotkey…` opens an `NSAlert` with an accessory view for key capture, not a popover.
+- Captured hotkeys and reset-to-default values are stored in `UserDefaults` under `HotkeyKeyCode` and `HotkeyModifiers`.
+- Hotkey registration failure is logged and shown with an alert titled `Hotkey Registration Failed`.
+
+### Localization and Accessibility
+- User-facing strings are currently English only.
+- Menu items use readable text labels derived from clip content or fixed action titles.
+- Automatic paste through CGEvent requires macOS Accessibility trust; Clopy checks trust and requests a system prompt through Accessibility APIs when needed.
+- The status bar icon includes the accessibility description `Clopy`.
+
+## 6) Functional Behavior
+
+### Clipboard Monitoring
+- `ClipboardManager` records the pasteboard's current `changeCount` at launch so existing pasteboard content is not captured immediately.
+- Monitoring starts during `ClipboardManager` initialization.
+- A repeating `Timer` checks `NSPasteboard.general.changeCount` every 0.5 seconds.
+- When `changeCount` changes, the manager reads `NSPasteboard.general.string(forType: .string)`.
+- Empty or whitespace-only strings are ignored.
+- Non-empty strings are added to the beginning of the in-memory clip list unless another clip already has exactly the same `content` string.
+- Duplicate text is ignored without moving the existing clip.
+
+### Retention
+- `maxItems` is currently a private constant set to 15.
+- When adding a clip makes the list exceed 15 items, Clopy removes the oldest non-starred clip.
+- If every clip is starred, Clopy allows the list to exceed 15 items rather than removing a starred clip.
+
+### Selecting and Copying Clips
+- Clip selection always first clears `NSPasteboard.general` and writes the clip content using `.string`.
+- After a successful copy, `lastChangeCount` is updated to the pasteboard's new `changeCount` so Clopy does not immediately re-capture the selected clip.
+- If `autoPaste` is false, no paste keystroke is attempted.
+- If `autoPaste` is true, Clopy schedules automatic paste after a 0.1 second delay.
+
+### Automatic Paste Attempt Order
+1. If Accessibility permission is already trusted (`AXIsProcessTrusted()`), Clopy simulates Command-V with `CGEvent` keyboard events posted to `.cghidEventTap`.
+2. If Accessibility permission is not already trusted, Clopy tries AppleScript through `System Events` to send Command-V.
+3. If AppleScript fails, Clopy calls `AXIsProcessTrustedWithOptions` with the prompt option and delivers a user notification that says `Clip copied! Press ⌘V to paste`.
+4. If permission is granted during that prompt check, Clopy retries the CGEvent paste after 0.5 seconds.
+
+### Star and Delete Actions
+- `starClip(_:)` and `unstarClip(_:)` update the matching clip's in-memory `isStarred` flag by `id`.
+- `deleteClip(_:)` removes clips matching the selected clip `id`.
+- `deleteAllClips()` removes only clips where `isStarred == false`.
 
 ## 7) Data Model
-- Clip (in‑memory)
-  - id: UUID (string)
-  - content: string (required)
-  - createdAt: Date (for ordering)
-  - isStarred: Bool (default false, prevents automatic removal)
 
-## 8) Technical Specification
-- Platform: macOS 13+ (Ventura) using SwiftUI MenuBarExtra, or AppKit NSStatusItem if preferred
-- Language/Framework: Swift 5.9+, SwiftUI for structure; AppKit for NSPasteboard, NSStatusItem/NSMenu, and hotkey registration
-- IDE/Build: Xcode 16.0+ (tested with 17.0)
-- App Type: UIElement (agent) status bar app (LSUIElement = 1)
-- Pasteboard: NSPasteboard.general, type public.utf8-plain-text only; monitor changeCount with a lightweight timer (e.g., 0.5–1.0s)
-- Persistence: None (in‑memory session only)
-- Icon: Template PDF or SF Symbol (e.g., "doc.on.clipboard")
-- Signing/Sandbox: **TEMPORARILY DISABLED** for testing auto-paste functionality; may require Accessibility permission for CGEvent keystroke simulation
-- Hotkey: RegisterEventHotKey‑based global shortcut (Control‑Option‑V) to open the menu; keyboard navigation within menu supported by macOS
+`Clip` is an in-memory Swift struct with:
+- `id: UUID`
+- `content: String`
+- `createdAt: Date`
+- `isStarred: Bool`, defaulting to `false`
 
-## 9) App Store Considerations
-- Uses public APIs (NSStatusItem, NSPasteboard, RegisterEventHotKey, CGEvent for keystroke simulation)
-- Requires Accessibility permission for auto-paste functionality when using hotkey menu
-- No private APIs, no analytics/tracking, no persistence of user content to disk
-- Category: Productivity
+`Clip` conforms to `Identifiable` and `Equatable`. Equality compares only `content`, although duplicate checks in the clipboard manager also compare `content` directly.
 
-## 10) Error Handling
-- Pasteboard read failure: ignore and continue monitoring
-- Hotkey registration failure: show minimal alert and continue without hotkey
-- Any unexpected error: log (OSLog) and fail gracefully without crashing
+## 8) Technical Implementation
 
-## 11) Localization & Accessibility
-- Localization: English only (initial)
-- Accessibility: Menu items have clear, readable titles; supports light/dark mode; VoiceOver reads menu entries (trimmed content)
+- Platform: macOS 13.0+.
+- App lifecycle: SwiftUI `App` with AppKit managers and an empty Settings scene.
+- UI: AppKit `NSStatusItem`, `NSMenu`, `NSMenuItem`, and `NSAlert`.
+- Clipboard APIs: `NSPasteboard.general`, `.string`, and `changeCount` polling.
+- Hotkey APIs: Carbon `RegisterEventHotKey`, `UnregisterEventHotKey`, and `InstallEventHandler`.
+- Automatic paste APIs: Accessibility trust checks, `CGEvent`, `NSAppleScript`, and `NSUserNotification` fallback guidance.
+- Logging: `OSLog` `Logger` with subsystem `com.clopy.app` and categories `App`, `ClipboardManager`, `StatusBarManager`, and `HotkeyManager`.
+- Signing and sandboxing: the project references `Clopy.entitlements`, but its sandbox and clipboard entitlement keys are commented out, leaving no active entitlements.
+- Bundle configuration: `Info.plist` sets `LSUIElement` to true and uses `AppIcon` as the bundle icon file.
+- Swift project setting: `SWIFT_VERSION` is currently `5.0` in the Xcode project.
 
-## 12) Acceptance Criteria
-- Status bar icon appears on launch; no Dock icon
-- Copying text in any app (Cmd+C) causes the text to appear at the top of Clopy’s menu list within ~1s
-- Selecting a clip from status bar menu sets pasteboard content; user can paste it into TextEdit successfully with Cmd+V
-- Selecting a clip from hotkey menu automatically pastes it at the current cursor location
-- Deleting one clip removes it from the menu immediately
-- “Delete All Clips…” clears the menu after confirmation
-- Configurable global hotkey (default Control‑Option‑V) opens the list for keyboard selection
-- Duplicate copies of an existing clip are ignored (no new entry and no reordering)
-- The list never exceeds the configured max items (default 15)
-- App remains within scope (no extra features)
+## 9) Distribution, Sandboxing, and App Store Considerations
 
-## 13) Open Questions
-- Max items: internally configurable; default 15
-- Duplicates: if copied text already exists in memory, do not add another entry (no reordering)
-- Hotkey: configurable via “Change Hotkey…” in the status menu; default Control‑Option‑V
+- The current project configuration points at `Clopy.entitlements`, but active sandbox entitlement keys are absent because the sandbox-related keys are commented out.
+- Current documentation and repository guidance treat the build as a direct/non-sandboxed testing build while automatic paste behavior is evaluated.
+- The implementation uses public AppKit, Pasteboard, Carbon hotkey, Accessibility, CGEvent, AppleScript, and notification APIs.
+- App Store suitability is not guaranteed by the current code because sandboxing is not active and automatic paste depends on Accessibility permission and OS review constraints.
 
-## 14) Delivery Notes for Developer
-- Create a new Xcode project (App, SwiftUI). Set LSUIElement = 1 in Info.plist
-- Implement status item and NSMenu (or MenuBarExtra) bound to in‑memory model
-- Implement pasteboard monitor (timer + changeCount) and in‑memory FIFO store with configurable maxItems (default 15)
-- Implement RegisterEventHotKey reading the shortcut from UserDefaults; provide a minimal “Change Hotkey…” capture popover and persist updates
-- Keep code minimal; no tests required as per scope
+## 10) Build and Validation Reality
 
-## 15) Implementation Status ✅
-- ✅ Max items: implemented with configurable default 15
-- ✅ Duplicates: implemented - existing text is not re-added (no reordering)
-- ✅ Hotkey: implemented - configurable via "Change Hotkey…" in status menu; default Control‑Option‑V
-- ✅ All core features implemented and functional
-- ✅ App builds successfully and runs as menu bar app
-- ✅ Clipboard monitoring, clip management, and hotkey system working
+- The repository currently has no automated test target.
+- The expected project-inspection command is `xcodebuild -project Clopy.xcodeproj -list`.
+- The expected unsigned Debug build command is:
 
-## 16) Implementation Complete ✅
-- ✅ **FIXED**: Added missing `com.apple.security.device.clipboard` entitlement to enable pasteboard write access in App Sandbox
-- ✅ **FIXED**: Improved error handling in ClipboardManager with success/failure logging
-- ✅ **IMPLEMENTED**: Auto-paste functionality for hotkey menu selections
-- ✅ **IMPLEMENTED**: Accessibility permission request and handling with user-friendly dialogs
-- ✅ **IMPLEMENTED**: CGEvent-based keystroke simulation for Cmd+V
-- ✅ **IMPLEMENTED**: Dual behavior - status bar menu (copy only) vs hotkey menu (auto-paste)
-- ✅ **IMPLEMENTED**: Comprehensive fallback system with notifications
+```bash
+xcodebuild -project Clopy.xcodeproj \
+  -scheme Clopy \
+  -configuration Debug \
+  -derivedDataPath /tmp/clopy-derived-data \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
 
-## 17) Final Technical Implementation
-**Auto-Paste System:**
-- **Primary Method**: CGEvent keystroke simulation (requires Accessibility permission)
-- **Fallback Method**: AppleScript keystroke simulation (limited compatibility)
-- **Final Fallback**: User notification with manual paste instruction
-- **Permission Handling**: Automatic permission request with System Preferences integration
+- Clipboard monitoring, global hotkeys, Accessibility permission, and automatic paste require manual validation in a real macOS desktop session.
 
-**Dual Menu Behavior:**
-- **Status Bar Menu**: Click clip → Copy to pasteboard → User presses Cmd+V manually
-- **Hotkey Menu**: Control+Option+V → Select clip → **Automatic paste at cursor location**
+## 11) Error Handling and Limitations
 
-**User Experience:**
-- First-time auto-paste triggers Accessibility permission request
-- Clear guidance to System Preferences → Privacy & Security → Accessibility
-- Graceful degradation if permission denied
-- Comprehensive logging for debugging
+- Pasteboard read failures or missing string content are ignored and logged.
+- Pasteboard write success and failure are logged.
+- Hotkey registration failures are logged and shown to the user with an alert.
+- The app relies on OS-level Accessibility, AppleScript, and notification behavior for automatic-paste fallback paths.
+- Automatic paste requires a real macOS desktop session to validate.
+- Clipboard monitoring, global hotkeys, Accessibility permission prompts, and paste simulation are not covered by automated tests in this repository.
 
-## 18) App Store Considerations Updated
-- ✅ Uses only public APIs (NSStatusItem, NSPasteboard, RegisterEventHotKey, CGEvent, AXIsProcessTrusted)
-- ✅ Requires Accessibility permission for auto-paste (clearly documented)
-- ✅ Graceful fallback when permission denied
-- ✅ No private APIs, no analytics/tracking, no persistence of user content to disk
-- ✅ Category: Productivity
-- ⚠️ **Note**: App Store review may require explanation of Accessibility permission usage
+## 12) Acceptance Criteria Matching the Current Code
 
-## 19) Testing Phase - Sandboxing Disabled 🧪
-**Current Status: Testing auto-paste functionality without sandbox restrictions**
-
-The application is **fully functional for testing**:
-- ✅ Clipboard monitoring across different applications
-- ✅ Hotkey registration and menu opening
-- ✅ Clip management and deletion
-- ✅ **Auto-paste functionality testing** (without sandbox restrictions)
-- 🧪 **Testing if CGEvent/AppleScript works better without sandboxing**
-- 🧪 **Evaluating Accessibility permission requirements**
-
-## 20) Star Feature Implementation ⭐
-**Status: Implemented**
-
-**Feature Overview:**
-- Users can star clips to prevent them from being automatically removed when new clips are added
-- Starred clips display with ⭐ prefix in the menu
-- Star state is in-memory only and not persisted to disk
-- Starred clips are preserved even when the 15-item limit is reached
-
-**Implementation Details:**
-- Added `isStarred: Bool` property to `Clip` struct
-- Modified removal logic to only remove non-starred clips when at capacity
-- Added "Star Clip" and "Unstar Clip" submenus in the status bar menu
-- Updated `displayText` to show ⭐ prefix for starred clips
-- If all clips are starred, the app allows exceeding the 15-item limit temporarily
-
-**User Experience:**
-- Star/unstar actions are available via submenus (similar to "Delete Clip")
-- Starred clips remain in chronological order (most recent first)
-- Visual distinction with ⭐ prefix makes starred clips easy to identify
-- No confirmation required for starring/unstarring (immediate action)
-
-**Delete All Clips Behavior:**
-- "Delete All Clips…" now preserves starred clips and only deletes non-starred clips
-- If all clips are starred, shows informational dialog and preserves all clips
-- Confirmation dialog clearly indicates how many clips will be deleted and how many starred clips will be preserved
-
-## 21) Next Steps After Testing
-**If auto-paste works without sandboxing:**
-- Document the trade-offs (security vs functionality)
-- Decide between sandboxed (App Store) vs non-sandboxed (direct distribution)
-- Update final specification based on test results
-
-**If auto-paste still doesn't work:**
-- Investigate alternative approaches (menu bar integration, different APIs)
-- Consider simplified UX (copy + notification approach)
-- Re-evaluate auto-paste feasibility on macOS
-
-
-
-
+- On launch, the app creates a menu bar status item and does not create a main window.
+- Existing pasteboard content is not captured immediately on launch.
+- Copying non-empty text in another app while Clopy is running adds it to the top of the menu within the 0.5-second polling interval.
+- Copying text that exactly matches an existing clip does not add another clip and does not reorder the existing clip.
+- Selecting a clip from a normal status bar interaction copies that clip to `NSPasteboard.general` for manual paste.
+- Selecting a clip after opening the menu with the global hotkey copies the clip and attempts automatic paste.
+- Starred clips show a `⭐ ` prefix and are preserved when retention is enforced.
+- A single clip can be deleted immediately from the `Delete Clip` submenu.
+- `Delete All Clips…` deletes only non-starred clips after confirmation and preserves starred clips.
+- If all clips are starred, `Delete All Clips…` shows an informational alert and deletes nothing.
+- The clip list normally keeps at most 15 items, but can exceed 15 when all retained clips are starred.
+- The global hotkey can be changed or reset through `Change Hotkey…`, and those preferences persist in `UserDefaults`.
