@@ -33,12 +33,25 @@ Clipboard contents and star state are not persisted. They are cleared when the a
 - Search, tagging, custom ordering, or pinning beyond the in-memory star flag.
 - Persisting clipboard history or star state across launches.
 
-## 3) Scope
+
+## 3) Users and Primary Use Cases
+
+### Users
+- macOS users who frequently reuse plain-text snippets during one desktop session.
+
+### Primary Use Cases
+1. Copy or otherwise place non-empty text on the general pasteboard while Clopy is running; Clopy captures the text into its in-memory list.
+2. Choose a snippet from the status bar menu to copy it back to the pasteboard, then paste manually with Command-V.
+3. Press the global hotkey, choose a snippet from the opened status menu, and let Clopy attempt to paste automatically at the current cursor location.
+4. Star important snippets so retention and delete-all actions preserve them.
+5. Delete a single snippet, or clear all non-starred snippets after confirmation.
+
+## 4) Scope
 
 ### In Scope
 - An AppKit `NSStatusItem` menu bar UI with an SF Symbol template icon named `doc.on.clipboard`.
 - Text capture from `NSPasteboard.general` when the pasteboard `changeCount` changes and `.string` content is available.
-- In-memory clip storage with a default maximum of 15 non-star-preserving retention slots.
+- In-memory clip storage with a retention limit of 15 items, while preserving starred clips when the limit is enforced.
 - Display of captured clips in newest-first order.
 - Clip display text that replaces newlines and carriage returns with spaces, trims outer whitespace/newlines, and middle-truncates long text to 30 leading characters plus an ellipsis plus 20 trailing characters.
 - A star prefix (`⭐ `) in display text for starred clips.
@@ -53,7 +66,7 @@ Clipboard contents and star state are not persisted. They are cleared when the a
 - App Store sandbox behavior as an active implementation target; sandbox and clipboard entitlements are currently commented out in the entitlements file.
 - Modifying historical documentation under `docs/` to describe current behavior.
 
-## 4) User Experience
+## 5) User Experience
 
 ### App Shell
 - The app is configured as a UIElement application with `LSUIElement = true`.
@@ -95,7 +108,13 @@ The menu is rebuilt from the current in-memory clip list.
 - Captured hotkeys and reset-to-default values are stored in `UserDefaults` under `HotkeyKeyCode` and `HotkeyModifiers`.
 - Hotkey registration failure is logged and shown with an alert titled `Hotkey Registration Failed`.
 
-## 5) Functional Behavior
+### Localization and Accessibility
+- User-facing strings are currently English only.
+- Menu items use readable text labels derived from clip content or fixed action titles.
+- Automatic paste through CGEvent requires macOS Accessibility trust; Clopy checks trust and requests a system prompt through Accessibility APIs when needed.
+- The status bar icon includes the accessibility description `Clopy`.
+
+## 6) Functional Behavior
 
 ### Clipboard Monitoring
 - `ClipboardManager` records the pasteboard's current `changeCount` at launch so existing pasteboard content is not captured immediately.
@@ -128,7 +147,7 @@ The menu is rebuilt from the current in-memory clip list.
 - `deleteClip(_:)` removes clips matching the selected clip `id`.
 - `deleteAllClips()` removes only clips where `isStarred == false`.
 
-## 6) Data Model
+## 7) Data Model
 
 `Clip` is an in-memory Swift struct with:
 - `id: UUID`
@@ -138,7 +157,7 @@ The menu is rebuilt from the current in-memory clip list.
 
 `Clip` conforms to `Identifiable` and `Equatable`. Equality compares only `content`, although duplicate checks in the clipboard manager also compare `content` directly.
 
-## 7) Technical Implementation
+## 8) Technical Implementation
 
 - Platform: macOS 13.0+.
 - App lifecycle: SwiftUI `App` with AppKit managers and an empty Settings scene.
@@ -151,7 +170,31 @@ The menu is rebuilt from the current in-memory clip list.
 - Bundle configuration: `Info.plist` sets `LSUIElement` to true and uses `AppIcon` as the bundle icon file.
 - Swift project setting: `SWIFT_VERSION` is currently `5.0` in the Xcode project.
 
-## 8) Error Handling and Limitations
+## 9) Distribution, Sandboxing, and App Store Considerations
+
+- The current project configuration points at `Clopy.entitlements`, but active sandbox entitlement keys are absent because the sandbox-related keys are commented out.
+- Current documentation and repository guidance treat the build as a direct/non-sandboxed testing build while automatic paste behavior is evaluated.
+- The implementation uses public AppKit, Pasteboard, Carbon hotkey, Accessibility, CGEvent, AppleScript, and notification APIs.
+- App Store suitability is not guaranteed by the current code because sandboxing is not active and automatic paste depends on Accessibility permission and OS review constraints.
+
+## 10) Build and Validation Reality
+
+- The repository currently has no automated test target.
+- The expected project-inspection command is `xcodebuild -project Clopy.xcodeproj -list`.
+- The expected unsigned Debug build command is:
+
+```bash
+xcodebuild -project Clopy.xcodeproj \
+  -scheme Clopy \
+  -configuration Debug \
+  -derivedDataPath /tmp/clopy-derived-data \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
+
+- Clipboard monitoring, global hotkeys, Accessibility permission, and automatic paste require manual validation in a real macOS desktop session.
+
+## 11) Error Handling and Limitations
 
 - Pasteboard read failures or missing string content are ignored and logged.
 - Pasteboard write success and failure are logged.
@@ -160,7 +203,7 @@ The menu is rebuilt from the current in-memory clip list.
 - Automatic paste requires a real macOS desktop session to validate.
 - Clipboard monitoring, global hotkeys, Accessibility permission prompts, and paste simulation are not covered by automated tests in this repository.
 
-## 9) Acceptance Criteria Matching the Current Code
+## 12) Acceptance Criteria Matching the Current Code
 
 - On launch, the app creates a menu bar status item and does not create a main window.
 - Existing pasteboard content is not captured immediately on launch.
