@@ -61,7 +61,7 @@ class ClipboardManager: ObservableObject {
 
         // Check for duplicates - don't add if content already exists
         guard !clips.contains(where: { $0.content == content }) else {
-            logger.debug("Duplicate clip ignored: \(content.prefix(50))")
+            logger.debug("Duplicate clip ignored")
             return
         }
 
@@ -76,15 +76,15 @@ class ClipboardManager: ObservableObject {
             if self.clips.count > self.maxItems {
                 // Find the oldest non-starred clip to remove
                 if let indexToRemove = self.clips.lastIndex(where: { !$0.isStarred }) {
-                    let removedClip = self.clips.remove(at: indexToRemove)
-                    self.logger.info("Removed oldest non-starred clip to maintain limit: \(removedClip.content.prefix(50))")
+                    self.clips.remove(at: indexToRemove)
+                    self.logger.info("Removed oldest non-starred clip to maintain retention limit")
                 } else {
                     // All clips are starred, allow exceeding the limit
                     self.logger.info("All clips are starred, allowing to exceed limit. Current count: \(self.clips.count)")
                 }
             }
 
-            self.logger.info("Added new clip: \(content.prefix(50))")
+            self.logger.info("Added new clip")
         }
     }
     
@@ -98,9 +98,9 @@ class ClipboardManager: ObservableObject {
         if success {
             // Update our change count to avoid re-capturing this content
             lastChangeCount = pasteboard.changeCount
-            logger.info("Successfully copied clip to pasteboard: \(clip.content.prefix(50))")
+            logger.info("Successfully copied clip to pasteboard")
         } else {
-            logger.error("Failed to copy clip to pasteboard: \(clip.content.prefix(50))")
+            logger.error("Failed to copy clip to pasteboard")
         }
     }
     
@@ -109,7 +109,7 @@ class ClipboardManager: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.clips.removeAll { $0.id == clip.id }
-            self.logger.info("Deleted clip: \(clip.content.prefix(50))")
+            self.logger.info("Deleted clip")
         }
     }
 
@@ -133,7 +133,7 @@ class ClipboardManager: ObservableObject {
             guard let self = self else { return }
             if let index = self.clips.firstIndex(where: { $0.id == clip.id }) {
                 self.clips[index].isStarred = true
-                self.logger.info("Starred clip: \(clip.content.prefix(50))")
+                self.logger.info("Starred clip")
             }
         }
     }
@@ -144,7 +144,7 @@ class ClipboardManager: ObservableObject {
             guard let self = self else { return }
             if let index = self.clips.firstIndex(where: { $0.id == clip.id }) {
                 self.clips[index].isStarred = false
-                self.logger.info("Unstarred clip: \(clip.content.prefix(50))")
+                self.logger.info("Unstarred clip")
             }
         }
     }
